@@ -1,0 +1,2 @@
+# discordbot
+for fun
