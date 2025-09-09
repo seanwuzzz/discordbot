@@ -1,4 +1,5 @@
 # discordbot
-for fun
 
-code is down for update and maintanence
+built for fun.
+check on-going VCT matches, match results, and more!
+
