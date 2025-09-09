@@ -1,0 +1,1 @@
+Choose your own fonts for generating the picture and put them in this folder
