@@ -1,3 +1,7 @@
+# VCT Discord Bot
+
+Built for fun. Check ongoing VCT matches, match results, and more—all inside Discord.  
+
 ## Commands
 #### Basics  
 `.hello` : says hello  
