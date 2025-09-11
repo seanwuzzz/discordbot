@@ -1,5 +1,7 @@
 # VCT Discord Bot
 
+_Latest Update: 2025/9/12 : Added detailed map stats for upcoming matches_    
+
 Built for fun. Check ongoing VCT matches, match results, and more—all inside Discord.  
 
 ## Commands
