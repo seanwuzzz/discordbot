@@ -11,11 +11,10 @@ from .utils import match_pic
 class MatchSelect(discord.ui.Select):
     def __init__(self, match_list):
         self.match_list = match_list
-
         options = [
             discord.SelectOption(
                 label=f"{match['team1']} vs {match['team2']}",
-                description=match['tournament_name'][:100],
+                #description=match['tournament_name'][:100],
                 value=str(i)
             )
             for i, match in enumerate(match_list)
@@ -31,7 +30,10 @@ class MatchSelect(discord.ui.Select):
     async def callback(self, interaction: discord.Interaction):
         index = int(self.values[0])
         match = self.match_list[index]
-        link = f'https://www.vlr.gg' + match['match_page']
+        if 'https://www.vlr.gg' in match['match_page']:
+            link = match['match_page']
+        else:
+            link = f'https://www.vlr.gg' + match['match_page']
         image = match_pic.gen_pic(link)
         file = discord.File(image, filename="match.png")
 
@@ -95,15 +97,13 @@ class vct(commands.Cog):
         response = requests.get(f"{vlrgg_base}/match?q=live_score")
         re_live = response.json()
 
+        match_data_list = []
+
         matches = discord.Embed(
             title = '賽事列表', 
             color = discord.Colour.dark_magenta(),
             timestamp= datetime.datetime.now()
             )
-        match1  = re['data']['segments'][0]
-        match2  = re['data']['segments'][1]
-        match1_time = match1['time_until_match'].split(" from")[0]  
-        match2_time = match2['time_until_match'].split(" from")[0]  
         
         if not re_live['data']['segments']:
             matches.add_field(name= f"__正在進行的比賽__", value = '', inline= False)
@@ -111,6 +111,7 @@ class vct(commands.Cog):
         else:
             matches.add_field(name= f"__正在進行的比賽__", value = '', inline= False)
             for match in re_live['data']['segments']:
+                match_data_list.append(match)
                 team1 = match['team1']
                 team2 = match['team2']
                 flag1 = match['flag1']
@@ -123,15 +124,27 @@ class vct(commands.Cog):
                 matches.add_field(name="", value=f"{line1}\n{line2}", inline=True)
                 matches.add_field(name="", value=f"__{score1}__\n__{score2}__", inline=True)
                 matches.add_field(name="", value="", inline=False)
-
+        
         matches.add_field(name= f"__即將開始的比賽__", value = '', inline= False)
-        matches.add_field(name= f":{match1['flag1']}: {match1['team1']} vs. :{match1['flag2']}: {match1['team2']} ({match1_time})",
-                             value= f"{match1['match_event']} {match1['match_series']}", inline= False)
-            
-        matches.add_field(name= f":{match2['flag1']}: {match2['team1']} vs. :{match2['flag2']}: {match2['team2']} ({match2_time})",
-                             value= f"{match2['match_event']} {match2['match_series']}", inline= False)
+
+        match_count = 0
+        for match in re['data']['segments']:
+            if match_count < 6:
+                if match['team1'] == 'TBD' and match['team2'] == 'TBD':  # 若為尚未預備之比賽
+                    continue
+                else:
+                    match_data_list.append(match)
+                    match_time = match['time_until_match'].split(" from")[0]
+                    matches.add_field(name= f":{match['flag1']}: {match['team1']} vs. :{match['flag2']}: {match['team2']} ({match_time})",
+                                    value= f"{match['match_event']} {match['match_series']}", inline= False)
+                    match_count += 1
+            else:
+                break
+        
         matches.set_footer(text= 'vlr.gg', icon_url= 'https://www.vlr.gg/img/vlr/logo_header.png')
-        await ctx.reply(embed = matches)
+        #print(match_data_list)
+        view = MatchSelectView(match_data_list)
+        await ctx.reply(embed = matches, view=view)
 
 
     @match.command(name="result")
