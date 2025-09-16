@@ -17,7 +17,7 @@ Built for fun. Check ongoing VCT matches, match results, and more—all inside D
 
 #### VCT  
 `.vct match` : shows you the ongoing/ upcoming VCT matches  
-`.vct match result` :  shows you the finished matches  
+`.vct result` :  shows you the finished matches  
 -> pick a match from the dropdown list to view detailed match info
 
 <p align="center">
