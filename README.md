@@ -25,7 +25,7 @@ Built for fun. Check ongoing VCT matches, match results, and more—all inside D
   <img src="https://github.com/seanwuzzz/discordbot/blob/main/demo_pics/on_going%20match.webp" width="30%" />
   <img src="https://github.com/seanwuzzz/discordbot/blob/main/demo_pics/upcoming%20match.png" width="30%" />
   <img src= "https://github.com/seanwuzzz/discordbot/blob/main/demo_pics/match_list.png", width= 30% />
-  <img src="https://github.com/user-attachments/assets/17084d8c-601b-44b4-9bd4-275e0a4c10c6" width= 30%" />
+  <img src="https://github.com/user-attachments/assets/17084d8c-601b-44b4-9bd4-275e0a4c10c6](https://github.com/user-attachments/assets/03900422-140d-4bc0-8f37-54182b955881" width= 30%" />
 </p>
 
 <sub><i>*source of information: vlr.gg & unofficial valorant API*</i></sub>
