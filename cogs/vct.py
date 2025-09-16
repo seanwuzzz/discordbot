@@ -7,6 +7,7 @@ import json
 import datetime
 import traceback
 from .utils import match_pic
+import pytz
 
 class MatchSelect(discord.ui.Select):
     def __init__(self, match_list):
@@ -34,22 +35,44 @@ class MatchSelect(discord.ui.Select):
             link = match['match_page']
         else:
             link = f'https://www.vlr.gg' + match['match_page']
-        image = match_pic.gen_pic(link)
+            
+        try:
+            image, match_time = match_pic.gen_pic(match_pic.scrape_major_info(link))
+        except Exception as e:
+            print(f'error: {e}')
+
         file = discord.File(image, filename="match.png")
 
+        try:
+            match_utc = match['unix_timestamp']
+            timezone = pytz.timezone('UTC')
+            dt = timezone.localize(datetime.datetime.strptime(match_utc, "%Y-%m-%d %H:%M:%S"))
+            timestamp = int(dt.timestamp())
+            time_info = f'開始時間：`{match_time}` \n(<t:{timestamp}:R>)'
+        except Exception as e:
+            print(f'error: {e}')
+
+            time_info = f"開始時間：`{match_time}`"
 
         result = discord.Embed(
                 title = f":{match['flag1']}: {match['team1']} vs :{match['flag2']}: {match['team2']}",
+                description= time_info,
                 color = discord.Colour.dark_magenta(),
                 timestamp= datetime.datetime.now() 
         )
+        result.set_footer(text='vlr.gg', icon_url='https://www.vlr.gg/img/vlr/logo_header.png')
         result.set_image(url="attachment://match.png")
+        
         # 顯示比賽資訊
-        await interaction.response.send_message(
+        await interaction.response.defer(ephemeral=False)
+        loading_message = await interaction.followup.send("🔄 正在獲取資料，請稍候...", wait=True)
+        await interaction.followup.send(
             embed= result,
             file=file,
             ephemeral= False
         )
+        await loading_message.delete()
+
 
 
 class MatchSelectView(discord.ui.View):
@@ -112,6 +135,7 @@ class vct(commands.Cog):
             matches.add_field(name= f"__正在進行的比賽__", value = '', inline= False)
             for match in re_live['data']['segments']:
                 match_data_list.append(match)
+                #match['tournament_name'] = 
                 team1 = match['team1']
                 team2 = match['team2']
                 flag1 = match['flag1']
@@ -147,7 +171,7 @@ class vct(commands.Cog):
         await ctx.reply(embed = matches, view=view)
 
 
-    @match.command(name="result")
+    @vct.group(name="result", invoke_without_command=True)
     async def result(self, ctx):
         response = requests.get(f"{vlrgg_base}/match?q=results")
         re = response.json()
@@ -195,3 +219,4 @@ class vct(commands.Cog):
 
 async def setup(client):
     await client.add_cog(vct(client))
+
